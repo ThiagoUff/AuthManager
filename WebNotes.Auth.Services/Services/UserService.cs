@@ -1,33 +1,51 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using WebNotes.Auth.Domain.Auth;
 using WebNotes.Auth.Domain.Entities.Request;
+using WebNotes.Auth.Domain.Entities.Response;
+using WebNotes.Auth.Domain.Interfaces.Helper;
+using WebNotes.Auth.Domain.Interfaces.Mapper;
+using WebNotes.Auth.Domain.Interfaces.Repository;
 using WebNotes.Auth.Domain.Interfaces.Services;
+using WebNotes.Auth.Domain.Repository.User;
 
 namespace WebNotes.Auth.Services.Services
 {
     public class UserService : IUserService
     {
-        private readonly UserManager<IdentityUser> _userManager;
-
-        public UserService(UserManager<IdentityUser> userManager) { _userManager = userManager; }
-
-        public async Task<IdentityResult> CreateUser(CreateUserRequest request)
+        private readonly IUserRepository _userRepository;
+        private readonly IUserMapper _userMapper;
+        private readonly IJwtUtils _jwtUtils;
+        public UserService(IUserRepository userRepository,
+                           IUserMapper userMapper,
+                           IJwtUtils jwtUtils)
         {
-            IdentityUser userExists = await _userManager.FindByNameAsync(request.UserName);
-            if (userExists is null)
+            _userRepository = userRepository;
+            _userMapper = userMapper;
+            _jwtUtils = jwtUtils;
+        }
+
+        public async Task CreateUser(CreateUserRequest request)
+        {
+            User user = await _userRepository.GetByEmailAsync(request.Email);
+            if (user is not null)
+                throw new Exception("Email já cadastrad");
+            await _userRepository.CreateAsync(_userMapper.convert(request));
+        }
+
+        public async Task<LoginResponse> LoginUser(LoginRequest request)
+        {
+            User? user = await _userRepository.GetByEmailAsync(request.Email);
+            if (user is null)
+                throw new Exception("User não existe");
+            if(user.Password == request.PassWord)
             {
-                IdentityUser user = new IdentityUser()
+                AuthToken token = await _jwtUtils.GenerateJwtToken(user);
+                return new LoginResponse()
                 {
-                    UserName = request.UserName,
-                    AccessFailedCount = 0,
-                    Email = request.UserName,
-                    LockoutEnabled = false,
-                    NormalizedEmail = request.UserName,
-                    NormalizedUserName = request.UserName,
-                    TwoFactorEnabled = false
+                    JwtToken = token.Token,
+                    Expiration = token.Expires,
                 };
-                return await _userManager.CreateAsync(user, request.Password);
             }
-            throw new ("User já existe");
+            throw new Exception("Senha invalida");
         }
     }
 }
