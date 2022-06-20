@@ -36,15 +36,8 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
-builder.Services.Configure<IdentityOptions>(options =>
-{
-    // Default Lockout settings.
-    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
-    options.Lockout.MaxFailedAccessAttempts = 5;
-    options.Lockout.AllowedForNewUsers = true;
-});
 
-//builder.Services.AddIdentity();
+
 builder.Services.AddDependencyInjections(builder.Configuration);
 builder.Services.AddSwaggerGenNewtonsoftSupport();
 builder.Services.AddAuth(builder.Configuration);

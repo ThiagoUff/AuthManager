@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using WebNotes.Auth.Api.Authorization;
 using WebNotes.Auth.Domain.Entities.Request;
 using WebNotes.Auth.Domain.Entities.Response;

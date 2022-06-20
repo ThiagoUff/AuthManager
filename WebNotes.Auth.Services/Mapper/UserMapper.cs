@@ -10,7 +10,7 @@ namespace WebNotes.Auth.Services.Mapper
         {
             return new User()
             {
-                Id = Convert.ToBase64String((new Guid()).ToByteArray()),
+                Id = Convert.ToBase64String((Guid.NewGuid()).ToByteArray()),
                 Email = request.Email,
                 Username = request.UserName,
                 Password = request.Password,
