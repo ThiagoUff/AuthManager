@@ -27,7 +27,7 @@ namespace WebNotes.Auth.Services.Services
         {
             User user = await _userRepository.GetByEmailAsync(request.Email);
             if (user is not null)
-                throw new Exception("Email já cadastrad");
+                throw new Exception("Email já cadastrado");
             await _userRepository.CreateAsync(_userMapper.convert(request));
         }
 
@@ -35,7 +35,7 @@ namespace WebNotes.Auth.Services.Services
         {
             User? user = await _userRepository.GetByEmailAsync(request.Email);
             if (user is null)
-                throw new Exception("User não existe");
+                throw new Exception("usuário não existente");
             if(user.Password == request.PassWord)
             {
                 AuthToken token = await _jwtUtils.GenerateJwtToken(user);
